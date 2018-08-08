@@ -25,27 +25,27 @@ public class ContactsMgrMain {
 
 //       -----These try/catch exceptions check to see if the named directory and file exist,
 //                          and creates them if they have not been.----
-        try {
-            if (Files.notExists(contactsDirectory)) {
-                Files.createDirectories(contactsDirectory);
-                System.out.println("Directory created.");
-            }
-        } catch(Exception e) {
-                System.out.println("Well, I couldn't do that.");
-                 e.printStackTrace();
+//        try {
+//            if (Files.notExists(contactsDirectory)) {
+//                Files.createDirectories(contactsDirectory);
+//                System.out.println("Directory created.");
+//            }
+//        } catch(Exception e) {
+//                System.out.println("Well, I couldn't do that.");
+//                 e.printStackTrace();
+//
+//        }
 
-        }
 
-
-        try {
-            if (!Files.exists(contactsFile)) {
-                Files.createFile(contactsFile);
-                System.out.println("File created.");
-            }
-        }  catch (Exception e) { //if path doesn't exist
-            System.out.println("Oops! I can't create that file.");
-            e.printStackTrace();
-            }
+//        try {
+//            if (!Files.exists(contactsFile)) {
+//                Files.createFile(contactsFile);
+//                System.out.println("File created.");
+//            }
+//        }  catch (Exception e) { //if path doesn't exist
+//            System.out.println("Oops! I can't create that file.");
+//            e.printStackTrace();
+//            }
 
             //display database
 
@@ -53,8 +53,7 @@ public class ContactsMgrMain {
 
 
         List<String> entries = new ArrayList<>();
-        entries.add("Jack Black|2103457834");
-        entries.add("Sam Elliot|2102546749");
+
         //System.out.println(entries);
 
         //System.out.println(entries.values());
@@ -79,13 +78,18 @@ public class ContactsMgrMain {
         switch (userSelection) {
             case 1:
                 showContacts();
+                break;
             case 2:
                 addContacts(sc);
+                break;
             case 3:
-
+                searchContacts(sc);
+                break;
             case 4:
-
+                deleteContact(sc);
+                break;
             case 5:
+                break;
 
 
         }
@@ -94,15 +98,24 @@ public class ContactsMgrMain {
 
     }
 
+    public static List<String> getContacts(){
+        Path contactsFile = Paths.get("src/contacts.txt");
 
+        try {
+            return Files.readAllLines(contactsFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 
     public static void showContacts(){
     String directory = "src";
     String filename = "contacts.txt";
-    Path dataFile = Paths.get(directory, filename);
+    Path contactsFile = Paths.get(directory, filename);
              try {
-                 System.out.println(Files.readAllLines(dataFile));
+                 System.out.println(Files.readAllLines(contactsFile));
             }catch(IOException e) {
                 e.printStackTrace();
             }
@@ -112,25 +125,70 @@ public class ContactsMgrMain {
 
         public static void addContacts(Scanner sc) {
             List<String> entries = new ArrayList<>();
-            System.out.println("Provide a contact name: ");
-            String addedEntry = sc.next();
+            System.out.println("Provide a contact first name: \n");
+            String firstName = sc.next();
+            System.out.println("Provide a contact last name: \n");
+            String lastName = sc.next();
             System.out.println("what is the phone number for this contact?\n");
             String addedNumber = sc.next();
 
             String directory = "src";
             String filename = "contacts.txt";
-            Path dataFile = Paths.get(directory, filename);
+            Path contactsFile = Paths.get(directory, filename);
+
+            entries.add(firstName + " " + lastName + "|" + addedNumber);
 
             try {
-                Files.write(dataFile, entries, StandardOpenOption.APPEND);
+                Files.write(contactsFile, entries, StandardOpenOption.APPEND);
             } catch(IOException e) {
                 e.printStackTrace();
             }
 
-            System.out.println("Contact " + addedEntry + "| " + addedNumber + "has been added to your Rollodex");
+            System.out.println("Contact: " + "\"" + firstName + " " + lastName + " | " + addedNumber + "\"" + " has been added to your Rollodex\n");
+
 
         }
 
+
+    public static void searchContacts(Scanner sc) {
+
+        List<String> entries = getContacts();
+        System.out.println("Who would you like to search for? \n");
+        String userSearch = sc.next();
+
+        //loop through entries and for each entry, sout it out, if it contains search term-----
+        for(int i = 0; i < entries.size(); i++) {
+            if(entries.get(i).contains(userSearch)) {
+                System.out.println(entries.get(i));
+            }
+        }
+
+    }
+
+    public static void deleteContact(Scanner sc) {
+
+        List<String> entries = getContacts();
+        System.out.println("What contact would you like to delete? \n");
+        String userSearch = sc.next();
+
+        //loop through entries and for each entry, sout it out, if it contains search term-----
+        int indexOfDelete = -1;
+        for(int i = 0; i < entries.size(); i++) {
+            if(entries.get(i).contains(userSearch)) {
+                indexOfDelete = i;
+            }
+        }
+        System.out.println("Are you sure you want to delete this entry?[y/n] : "+ entries.get(indexOfDelete));
+        String confirm = sc.next();
+        if(confirm.equalsIgnoreCase("y")){
+            entries.remove(indexOfDelete);
+            try {
+                Files.write(Paths.get("src/contacts.txt"), entries);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 
 
